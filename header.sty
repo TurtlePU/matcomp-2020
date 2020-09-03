@@ -1,0 +1,71 @@
+\usepackage[
+    top=0.8in,
+    bottom=0.8in,
+    left=0.8in,
+    right=0.8in,
+    headheight=110pt
+]{geometry}
+
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{fontspec}
+\usepackage{indentfirst}
+\defaultfontfeatures{Ligatures={TeX},Renderer=Basic}
+\setmainfont{FreeSerif}
+\frenchspacing
+
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools,commath}
+
+\newenvironment{answer}{\textit{Ответ.}}{\hfill\newline}
+\newenvironment{solution}{\textit{Решение.}}{\hfill}
+
+\newenvironment{base}{\par\noindent\textbf{База.}}{\hfill}
+\newenvironment{induct}{\par\noindent\textbf{Переход.}}{\hfill}
+
+\renewcommand{\proofname}{$\triangleright$}
+\renewcommand{\qedsymbol}{$\square$}
+\renewcommand{\epsilon}{\ensuremath{\varepsilon}}
+\renewcommand{\phi}{\ensuremath{\varphi}}
+\renewcommand{\kappa}{\ensuremath{\varkappa}}
+\renewcommand{\le}{\ensuremath{\leqslant}}
+\renewcommand{\leq}{\ensuremath{\leqslant}}
+\renewcommand{\ge}{\ensuremath{\geqslant}}
+\renewcommand{\geq}{\ensuremath{\geqslant}}
+\renewcommand{\emptyset}{\varnothing}
+
+\newcommand{\eps}{\epsilon}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Int}{\int\limits}
+
+\usepackage{titlesec}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{codestyle}{
+    language = C++,
+    basicstyle = \ttfamily\bfseries\small,
+    keywordstyle = \color{blue}
+}
+\lstset{style = codestyle}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{lemma}[theorem]{Лемма}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Определение}[section]
+
+\theoremstyle{remark}
+\newtheorem{example}{Пример}[section]
+\newtheorem{point}{Утверждение}[section]
+

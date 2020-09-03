@@ -1,70 +1,3 @@
-\documentclass[a4paper, 12pt]{article}
-\usepackage[total={7in,11in}]{geometry}
-\pagenumbering{gobble}
-
-\usepackage[T2A]{fontenc}
-\usepackage[russian]{babel}
-\usepackage{fontspec}
-\usepackage{indentfirst}
-\defaultfontfeatures{Ligatures={TeX},Renderer=Basic}
-\setmainfont{FreeSerif}
-\frenchspacing
-
-\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
-\usepackage{commath}
-
-\newenvironment{answer}{\textit{Ответ.}}{\hfill\newline}
-\newenvironment{solution}{\textit{Решение.}}{\hfill}
-
-\newenvironment{base}{\par\noindent\textbf{База.}}{\hfill}
-\newenvironment{induct}{\par\noindent\textbf{Переход.}}{\hfill}
-
-\renewcommand{\proofname}{$\triangleright$}
-\renewcommand{\qedsymbol}{$\square$}
-\renewcommand{\epsilon}{\ensuremath{\varepsilon}}
-\renewcommand{\phi}{\ensuremath{\varphi}}
-\renewcommand{\kappa}{\ensuremath{\varkappa}}
-\renewcommand{\le}{\ensuremath{\leqslant}}
-\renewcommand{\leq}{\ensuremath{\leqslant}}
-\renewcommand{\ge}{\ensuremath{\geqslant}}
-\renewcommand{\geq}{\ensuremath{\geqslant}}
-\renewcommand{\emptyset}{\varnothing}
-
-\newcommand{\eps}{\epsilon}
-\newcommand{\N}{\mathbb{N}}
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\CC}{\mathbb{C}}
-\newcommand{\Int}{\int\limits}
-
-\usepackage{titlesec}
-
-\usepackage{listings}
-\usepackage{xcolor}
-
-\lstdefinestyle{codestyle}{
-    language = C++,
-    basicstyle = \ttfamily\bfseries\small,
-    keywordstyle = \color{blue}
-}
-\lstset{style = codestyle}
-
-\usepackage{hyperref}
-\hypersetup{colorlinks=true}
-
-\newtheorem{theorem}{Теорема}[section]
-\newtheorem{lemma}[theorem]{Лемма}
-\newtheorem{definition}{Определение}[section]
-\newtheorem{example}{Пример}[section]
-\newtheorem{assertion}{Утверждение}[section]
-
-\title{Лекция по Матричным Вычислениям}
-\author{Павел Соколов}
-\date{\today}
-
-\begin{document}
-
-\maketitle
-
 \section{О курсе}
 
 Большую часть сказанного можно найти в
@@ -76,7 +9,7 @@
     \item Gilbert (неразборчиво) --- Matrix Methods in Data Science (скорее
         всего, Gilbert Strang --- Matrix Methods in Data Analysis, Signal
         Processing, and Machine Learning)
-    \item \href{https://github.com/oseledets}{Ivan Oselets @ github}. Скорее
+    \item \href{https://github.com/oseledets}{Ivan Oseledets @ github}. Скорее
         всего, имеются в виду репозитории с названиями \verb|nla20XX|.
 \end{enumerate}
 
@@ -166,9 +99,9 @@
     \]
 \end{definition}
 
-\begin{assertion}
+\begin{point}
     Если $U$ --- унитарная матрица, то $\norm{U x}_2 = \norm{x}_2$.
-\end{assertion}
+\end{point}
 
 \begin{proof}
     \[
@@ -207,7 +140,7 @@
         \]
 \end{itemize}
 
-\begin{assertion}
+\begin{point}
     Для любой матрицы $A$ и для любых унитарных матриц $U, V$ верно
     \[
         \begin{array}{c}
@@ -215,7 +148,7 @@
             \norm{U A V}_2 = \norm{A}_2
         \end{array}
     \]
-\end{assertion}
+\end{point}
 
 \begin{proof}
     Для $\norm{\cdot}_2$:
@@ -261,10 +194,10 @@
         Т.к. $\CC$ алгебраически замкнуто, у характеристического многочлена $A$
         есть хотя бы один корень, т.е. у $A$ есть хотя бы одно собственное
         значение $\lambda_1$, т.е. всегда найдётся хотя бы один ненулевой
-        собственный вектор $v_1$.
+        собственный вектор $v_1$ единичной длины.
 
-        Дополним $v_1$ до ортогонального базиса $v_1, \dots , v_n$, отнормируем
-        его и положим $U_1 = \begin{pmatrix} v_1 & \dots & v_n \end{pmatrix}$.
+        Дополним $v_1$ до ортонормированного базиса $v_1, \dots , v_n$ и положим
+        $U_1 = ( v_1 | \dots | v_n )$.
 
         $v_1$ --- собственный вектор, так что $A v_1 = \lambda_1 v_1$. Тогда, в
         силу ортогональности $v_i$ и $v_j$,
@@ -327,10 +260,10 @@
     Матрица $A$ называется нормальной, если $A^* A = A A^*$.
 \end{definition}
 
-\begin{assertion}
+\begin{point}
     Матрица диагонализуема в унитарном базисе тогда и только тогда, когда она
     является нормальной.
-\end{assertion}
+\end{point}
 
 \begin{proof}.
 
