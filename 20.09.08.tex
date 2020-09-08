@@ -1,0 +1,239 @@
+\section{Малоранговое приближение матриц}
+
+\subsection{Разделение переменных и скелетное разложение}
+
+\begin{definition}
+    Функция с разделенными переменными --- такая функция $f: X \times Y \to Z$,
+    что существуют $u$, $v$ такие, что $f(x, y) = u(x) v(y)$.
+\end{definition}
+
+Для приближения функций используют сумму функций с разделенными переменными:
+
+\[
+    f(x, y) \approx \sum_{i = 1}^r u_i(x) v_i(y)
+\]
+
+Например, разложения в ряд Тейлора и в ряд Фурье:
+
+\[
+    f(x, y) \approx \sum_{i, j = 0}^p c_{ij} x^i y^j
+\]
+\[
+    f(x, y) \approx \sum_{i, j = 1}^r c_{ij} \sin{\pi i x} \sin{\pi j y}
+    \quad \left( (x, y) \in (0, 1)^2 \right)
+\]
+
+Как это относится к матричным вычислениям? Возьмём матрицу $A \in \R^{m\times n}$.
+$a_{ij}$ --- функция дискретных переменных $i$, $j$.
+
+Если $a_{ij} = u_i v_j$, то $A = u v^T$ (обратное тоже верно).
+
+Раз все строки (столбцы) матрицы коллинеарны, $rk{A} \le 1$.
+
+Примеры: $a_{ij} = \sin{i} \cos{j}$, $a_{ij} = i$.
+
+\begin{definition}
+    Скелетное разложение, rank decomposition --- разложение $A = U V^T$ такое,
+    что новая размерность $U$, $V$ минимальна.
+\end{definition}
+
+Замечания:
+
+\begin{enumerate}
+    \item Storage: $m n$ Vs. $(m + n) r$
+    \item Разложение единственно с точностью до умножения на обратимую матрицу:
+        \[
+            U V^T = (U S) (S^{-1} V^T)
+        \]
+\end{enumerate}
+
+Утверждения:
+
+\begin{enumerate}
+    \item $A = U V^T \Rightarrow rk(A) \le r$;
+    \item $rk(A) = r \Rightarrow \exists U \in \R^{m \times r},
+        V \in \R^{r \times n}: A = U V^T$.
+\end{enumerate}
+
+\begin{proof} .
+
+    \begin{enumerate}
+        \item очев
+        \item очев
+    \end{enumerate}
+\end{proof}
+
+\subsection{SVD}
+
+\begin{theorem}
+    Пусть $A \in \CC^{m \times n}$, $rk(A) = r$, тогда найдутся унитарные
+    $U \in \CC^{m \times m}$, $V \in \CC^{n \times n}$ и
+    $\sigma_1 \ge \dots \ge \sigma_r > 0$ --- сингулярные числа, что
+
+    \[
+        A = U \Sigma V^*,
+    \]
+
+    где $\Sigma$ --- диагональная матрица с $\sigma_1, \dots, \sigma_r$ на
+    диагонали.
+\end{theorem}
+
+\begin{proof}
+    Заметим, что $A^* A \ge 0$ и $(A^* A)^* = A^* A$. Из этого следует, что
+
+    \[
+        \exists V: V^* A^* A V = diag(\sigma_1^2, \dots, \sigma_n^2),
+        \quad \sigma_1 \ge \dots \ge \sigma_n \ge 0. \qquad (1)
+    \]
+
+    Рассмотрим $V_r = [v_1, \dots, v_r]$ и
+    $\Sigma_r = diag(\sigma_1, \dots, \sigma_r)$, где $\sigma_{r + 1} = 0$
+    ($r$ пока неизвестно).
+
+    \[
+        V_r^* A^* A V_r = \Sigma_r^2;
+    \]
+    \[
+        \left( \Sigma_r^{-1} V_r^* A^* \right)
+        \left( A V_r \Sigma_r^{-1} \right) = I
+    \]
+
+    Получается, что $A v_i = \sigma_i u_i$ при $i \in [1, r]$.
+
+    А при $i \in [r + 1, n]$ --- $A v_i = 0$.
+
+    Достраиваем $U_r$ до унитарной $U$:
+
+    \[
+        A V = U \begin{pmatrix} \Sigma_r & 0 \\ 0 & 0 \end{pmatrix}
+        \quad\Rightarrow\quad
+        U^* A V = \begin{pmatrix} \Sigma_r & 0 \\ 0 & 0 \end{pmatrix}.
+    \]
+
+    Из этого, в частности, следует, что $r = rk(A)$.
+\end{proof}
+
+Замечание:
+
+\begin{enumerate}
+    \item $u_i$ --- левые сингулярные векторы;
+
+        $v_i$ --- правые сингулярные векторы;
+
+        $\sigma_{r + 1} = \dots = \sigma_{\min(m, n)} = 0$ --- нулевые
+        сингулярные числа.
+    \item Сингулярные числа определены однозначно.
+    \item Сингулярные векторы определяются однозначно с точностью до множителя
+        $C: |C| = 1$ при $\sigma_1 > \dots > \sigma_r > 0$.
+    \item
+        \[
+            Im(A) = \left< u_1, \dots, u_r \right>;
+        \]
+        \[
+            Ker(A) = \left< v_{r + 1}, \dots, v_n \right>.
+        \]
+    \item SVD $\to$ скелетное разложение:
+        \[
+            A = U \Sigma V^* = \hat{U} V^*.
+        \]
+
+        Переход в другую сторону будет на семинаре.
+\end{enumerate}
+
+\begin{theorem} (Эккорта-Янга-Мирского).
+
+    Пусть $k < rk(A)$ и $A_k = U_k \Sigma_k V_k^*$, тогда
+
+    \[
+        \min_{rk(B) \le k} \norm{A - B} = \norm{A - A_k}
+    \]
+
+    для любой унитарно инвариантной нормы $\norm{\cdot}$, причем
+    $\norm{A - A_k}_2 = \sigma_{k + 1}$,
+    $\norm{A - A_k}_F = \sqrt{\sum_{i = k + 1}^r \sigma_i^2}$.
+\end{theorem}
+
+\begin{definition}
+    Нормы Шаттена:
+
+    \[
+        \norm{A}_{p, Shatten} = \left( \sum_{i = 1}^r \sigma_i^p \right)^{1/p},
+        \quad 1 \le p \le \infty
+    \]
+\end{definition}
+
+Нормы Шаттена унитарно инвариантны!
+
+Примеры:
+
+\begin{enumerate}
+    \item $\norm{\cdot}_{2, Shatten} = \norm{\cdot}_F$;
+    \item $\norm{\cdot}_{\infty, Shatten} = \norm{\cdot}_2$;
+    \item $\norm{\cdot}_{1, Shatten} = \norm{\cdot}_*$ --- ядерная (nuclear)
+        норма.
+\end{enumerate}
+
+\subsection{Ортопроектор}
+
+\begin{definition}
+    $P$ --- ортопроектор на $L$, если
+
+    \begin{enumerate}
+        \item $Im(P) = L$
+        \item $P^2 = P$
+        \item $P^* = P$
+    \end{enumerate}
+\end{definition}
+
+\begin{point}
+    \[
+        \forall x \in \CC^n: P x \perp (I - P) x
+    \]
+\end{point}
+
+\begin{proof}
+    \[
+        (P x, (I - P) x) = (x, P^* (I - P) x) = (x, P (I - P) x) = (x, 0) = 0.
+    \]
+\end{proof}
+
+\begin{point}
+    Если $U \in \CC^{n \times k}$, $U^* U = I_k$, то $U U^*$ --- ортопроектор
+    на $\left< u_1, \dots, u_k \right>$.
+\end{point}
+
+Ортопроекторы, связанные с SVD.
+
+\[
+    A = U \Sigma V^*, U = [U_r | \hat{U_r}], V = [V_r | \hat{V_r}]
+\]
+
+$U_r U_r^*$ --- ортопроектор на $Im(A)$.
+
+$\hat{V}_r \hat{V}_r^*$ --- ортопроектор на $Ker(A)$.
+
+\subsection{Простейший рандомизированный алгоритм}
+
+Хотим найти $Q \in \R^{m \times r}$ с ортогональными столбцами такую, что для
+$A \in \R^{m \times n}$
+
+\[
+    A \approx Q Q^T A \quad (\text{если } r = rk(A), Q = U_r, \text{ то
+    точное равенство}).
+\]
+
+Если мы нашли $Q$, то
+
+\[
+    Q (Q^T A) = Q (W \Sigma V^T) = U \Sigma V^T \quad \text{--- SVD.}
+\]
+
+Как выбрать $Q$?
+
+\begin{enumerate}
+    \item $\Omega = [\omega_1, \dots, \omega_r]$ --- случайная матрица;
+    \item $Y = A \cdot \Omega$;
+    \item Ортогонализация столбцов $Y$. Например, с помощью Грамма-Шмидта.
+        (= QR-разложение)
+\end{enumerate}
+
