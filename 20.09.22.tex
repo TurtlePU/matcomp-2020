@@ -1,0 +1,294 @@
+\section{Малоранговая аппроксимация многомерных массивов (тензоров)}
+
+\subsection{Кронекерово произведение}
+
+\begin{definition}
+    \[
+        A \otimes B = \begin{pmatrix}
+            a_{1 1} B & \dots & a_{1 n} B \\
+            \vdots & & \vdots \\
+            a_{m 1} B \dots a_{m n} B
+        \end{pmatrix}
+    \]
+    --- называется Кронекеровым произведением.
+\end{definition}
+
+(Если $A \in \F^{m \times n}, B \in \F^{p \times q}$, то
+$A \otimes B \in \F^{m p \times n q}$.)
+
+\begin{point} .
+    \begin{enumerate}
+    \item
+        \[
+            (A + B) \otimes C = A \otimes C + B \otimes C; \quad
+            A \otimes (B + C) = A \otimes B + A \otimes C;
+        \]
+    \item
+        \[
+            (A \otimes B)^* = A^* \otimes B^*;
+        \]
+    \item
+        \[
+            A \otimes B = (A \otimes I) (I \otimes B)
+            = (I \otimes B) (A \otimes I)
+        \]
+    \item
+        \[
+            (A B) \otimes (C D) = (A \otimes C) (B \otimes D)
+        \]
+    \item
+        \[
+            (A \otimes B)^{-1} = A^{-1} \otimes B^{-1}
+        \]
+    \end{enumerate}
+\end{point}
+
+\begin{proof} .
+    \begin{enumerate}
+        \item очевидно
+        \item очевидно
+        \item доказывается пристальным взглядом:
+
+            \[
+                (A \otimes I) (I \otimes B) = \begin{pmatrix}
+                    a_{1 1} I & \dots & a_{1 n} I \\
+                    \vdots & & \vdots \\
+                    a_{m 1} I & \dots & a_{m n}
+                \end{pmatrix}
+                \begin{pmatrix}
+                    B & & & \\
+                    & B & & \\
+                    & & \ddots & \\
+                    & & & B
+                \end{pmatrix}
+            \]
+
+        \item Проверим, что
+
+            \[
+                I \otimes C D = (I \otimes C) (I \otimes D); \quad
+                A B \otimes I = (A \otimes I) (B \otimes I).
+            \]
+
+            Тогда по 3)
+
+            \[
+                A B \otimes C D = (A B \otimes I) (I \otimes C D)
+                = (A \otimes I) (B \otimes I) (I \otimes C) (I \otimes D)
+                = OOF.
+            \]
+
+            Снова по 3)
+
+            \[
+                OOF = (A \otimes I) (I \otimes C) (B \otimes I) (I \otimes D)
+                = (A \otimes C) (B \otimes D).
+            \]
+
+        \item следует из 4).
+    \end{enumerate}
+\end{proof}
+
+\begin{definition}
+    $\vecc(\cdot): \CC^{m \times n} \to \CC^{m n}$ действует следующим образом:
+
+    \[
+        \vecc \left(
+            \begin{pmatrix}
+                a_{1 1} & a_{1 2} & \dots & a_{1 n} \\
+                \vdots \\
+                a_{m 1} & a_{m 2} & \dots & a_{m n}
+            \end{pmatrix}
+        \right) = \begin{pmatrix}
+            a_{1 1} \\ \vdots \\ a_{m 1} \\ a_{1 2} \\ \vdots \\ a_{m 2} \\
+            \vdots \\
+            a_{1 n} \\ \vdots \\ a_{m n}
+        \end{pmatrix}
+    \]
+\end{definition}
+
+В Python --- \verb|np.reshape(A, [m + n, 1], order='f')| либо
+\verb|np.flatten(A, order='f')|.
+
+Пример: $\vecc(u v^T) = v \otimes u$.
+
+\begin{point}
+    \[
+        \vecc(A X B) = B^T \otimes A \cdot \vecc(X)
+    \]
+\end{point}
+
+\begin{proof}
+    Пусть $X = u v^T$.
+
+    \[
+        \vecc(A u v^T B) = \vecc((A u) (B^T v)^T)
+        = (B^T v) \otimes (A u) = (B^T \otimes A) (v \otimes u).
+    \]
+
+    Но $\vecc$ и матричное умножение линейны, а любую матрицу можно представить
+    как сумму матриц ранга 1.
+\end{proof}
+
+\begin{point}
+    \[
+        \left< A, B \right>_F = \trace(A^T B) = \vecc(A)^T \vecc(B).
+    \]
+\end{point}
+
+\subsection{Внешнее (тензорное) произведение}
+
+\begin{definition}
+    Для $A \in \R^{n_1 \times \dots \times n_d}, B \in \R^{m_1 \times \dots
+    \times m_D}$ тензор $(A \otimes_o B) \in \R^{n_1 \times \dots \times n_d
+    \times m_1 \times \dots \times m_D}$ называется внешним (тензорным)
+    произведением:
+
+    \[
+        (A \otimes_o B)_{i j} = A_i B_j \quad (i \in \N^d, j \in \N^D)
+    \]
+\end{definition}
+
+Пример. $a_{ij} = u_i v_j$; $A = u v^T = u \otimes_o v$;
+$\vecc(u \otimes_o v) = v \otimes_K u$.
+
+Замечание. Мы будем писать $\otimes$ вместо $\otimes_o$, если из контекста
+понятно, о чем идёт речь. Иначе будем писать $\otimes_o$ и $\otimes_K$.
+
+Скелетное разложение:
+
+\[
+    A = U V^T = u_1 \otimes v_1 + \dots + u_r \otimes v_r
+\]
+
+SVD:
+
+\[
+    A = \sum_{\alpha = 1}^r \sigma_\alpha u_\alpha \otimes v_\alpha;
+\]
+
+\[
+    \vecc{A} = V \otimes_K U \vecc{\Sigma}.
+\]
+
+Обобщим скелетное разложение на большее количество размерностей:
+
+\[
+    a_{i j k} = \sum_{\alpha = 1}^R u_{i \alpha} v_{j \alpha} w_{k \alpha};
+\]
+
+\[
+    A = \sum_{\alpha = 1}^R u_\alpha \otimes v_\alpha \otimes w_\alpha;
+\]
+
+\[
+    A = \sum_{\alpha = 1}^R \bigotimes_{k = 1}^d u_\alpha^{(k)}
+    \quad \text{для } A \in \R^{n_1 \times \dots \times n_d}.
+\]
+
+\begin{itemize}
+    \item Единственность (при некоторых условиях) в отличие от 2D;
+    \item Проблемы при вычислениях.
+\end{itemize}
+
+\subsection{Разложение Таккера}
+
+\[
+    A = \sum_{\alpha = 1}^{R_1} \sum_{\beta = 1}^{R_2} \sum_{\gamma = 1}^{R_3}
+        g_{\alpha \beta \gamma} u_\alpha \otimes v_\beta \otimes v_\gamma.
+\]
+
+$G = \{g_{\alpha \beta \gamma}\}_{\alpha, \beta, \gamma = 1}^{R_1, R_2, R_3}$
+--- ядро Таккера;
+
+\[
+    \left.\begin{array}{l}
+        U = [u_1 \dots u_{R_1}] \in \CC^{m \times R_1} \\
+        V = [v_1 \dots v_{R_2}] \in \CC^{n \times R_2} \\
+        W = [w_1 \dots w_{R_3}] \in \CC^{l \times R_3} \\
+    \end{array}\right\} \text{факторы}
+\]
+
+Минимальные $(R_1, R_2, R_3)$ --- Таккеровский (мультилинейный) ранг.
+
+Также пишут $A = [G; U, V, W]$.
+
+Storage: $n^3 \gg R^3 + 3 n R$ при $R \ll n$.
+
+\begin{point}
+    \[
+        \vecc{A} = W \otimes_K V \otimes_K U \cdot \vecc{G}.
+    \]
+\end{point}
+
+\begin{proof}
+    Аналогично похожему док-ву через $\rank$-1 члены.
+\end{proof}
+
+\begin{definition}
+    \[
+        A_{(1)} = [A[:,:,0], A[:,:,1], \dots, A[:,:,-1]]
+    \]
+
+    \[
+        A_{(2)} = permute(A, [1, 0, 2])_{(1)}
+    \]
+
+    (В Питоне \verb|permute| --- \verb|np.transpose|)
+
+    \[
+        A_{(3)} = permute(A, [2, 0, 1])_{(1)}
+    \]
+
+    --- $A_{(p)}$ --- матритизация по моде $p$.
+\end{definition}
+
+Заметим, что $\vecc(A) = \vecc(A_{(1)})$. Тогда
+
+\[
+    \vecc(A) = \vecc(A_{(1)}) = W \otimes V \otimes U \cdot \vecc(G)
+    = (W \otimes V) \otimes U \cdot \vecc(G_{(1)})
+    = \vecc(U G_{(1)} (W \otimes V))
+\]
+
+Получаем, что
+
+\[
+    \begin{array}{c}
+        A_{(1)} = \dots \\
+        A_{(2)} = \dots \\
+        A_{(3)} = W G_{(3)} (V \otimes U)^T
+    \end{array}
+\]
+
+\begin{theorem}
+    $(R_1, R_2, R_3) = (\rank{A_{(1)}}, \rank{A_{(2)}}, \rank{A_{(3)}})$.
+\end{theorem}
+
+\begin{proof} .
+    \begin{enumerate}
+        \item
+            \[
+                A_{(1)}
+            \]
+        \item Пусть $A_{(1)} = U_1 \Sigma_1 V_1^T$ --- compact SVD.
+            $U_1 U_1^T A_{(1)} = A_{(1)}$;
+
+            \[
+                \vecc(A_{(1)}) = \vecc(U_1 U_1^T U G_{(1)} (W^T \otimes V^T))
+            \]
+
+            Чё так быстро-то (((
+    \end{enumerate}
+\end{proof}
+
+HOSVD алгоритм.
+
+$U_k$ --- $r_k$ левых сингулярных векторов $A_{(k)}$, где $r_k: \norm{A_{(k)} -
+U_k U_k^T A_{(k)}}_F \le \eps$.
+
+$G = [A, U_1^T, U_2^T, U_3^T$.
+
+Тогда $A_{HOSVD} = [G, U_1, U_2, U_3]$ и $\norm{A - A_{HOSVD}}_F \le \sqrt{3}
+\eps$.
+
