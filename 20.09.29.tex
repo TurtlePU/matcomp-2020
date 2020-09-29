@@ -1,0 +1,279 @@
+\section{QR-разложение и метод наименьших квадратов}
+
+\subsection{QR-разложение}
+
+\subsubsection{Ортогонализация Грамма-Шмидта}
+
+$a_1, \dots, a_n \in \CC^m$ --- линейно независимы. $A := [a_1, \dots, a_n]$.
+
+Рассмотрим процесс ортогонализации Грамма-Шмидта.
+
+\[
+    \tilde{q}_1 = a_1, \quad q_1 = \frac{\tilde{q}_1}{\norm{\tilde{q}_1}_2};
+\]
+\[
+    \tilde{q}_2 = a_2 - q_1 q_1^* a_2,
+    \quad q_2 = \frac{\tilde{q}_2}{\norm{\tilde{q}_2}_2};
+\]
+\[
+    \tilde{q}_3 = a_3 - [q_1 q_2] [q_1 q_2]^* a_3, \dots
+\]
+\[
+    \vdots
+\]
+\[
+    [a_1 a_2 \dots a_n] = [q_1 q_2 \dots q_n] \begin{bmatrix}
+        \norm{a_1}_2 & q_1^* a_2 & . & . \\
+        0 & \norm{\tilde{q}_2}_2 & . & .\\
+        \vdots & 0 & . & . \\
+        \vdots & \vdots & . & . \\
+        0 & 0 & . & .
+    \end{bmatrix}
+\]
+
+Т.е. $A = Q R$, где $Q$ --- унитарная, а $R$ --- верхнетреугольная.
+
+ГШ неустойчив (будет в дз).
+
+\subsubsection{Отражения Хаусхолдера}
+
+Хотим для любого $x$ найти унитарную $U$ такую, что
+
+\[
+    U x = \begin{bmatrix} * \\ 0 \\ \vdots \\ 0 \end{bmatrix}.
+\]
+
+Рассмотрим матрицу $H(v) = I - 2 v v^*$, где $\norm{v}_2 = 1$. Эта матрица
+называется матрицей Хаусхолдера. Она унитарна (было в ДЗ 1) и эрмитова (очев).
+
+\[
+    \text{TODO: график}
+\]
+
+\begin{point}
+    $\forall a, b \in \CC^n: \norm{a}_2 = \norm{b}_2 \; \exists \gamma \in \CC:
+        |\gamma| = 1 \;\land\; \exists v \in \CC^n: H(v) \cdot a = \gamma b$.
+\end{point}
+
+\begin{proof}
+    \[
+        H(v) \cdot a = \gamma b \quad\Rightarrow\quad a - 2 v^* a v = \gamma b.
+    \]
+
+    Если $a$ коллинеарен $b$, то $v = \frac{a}{\norm{a}_2}$.
+
+    Иначе положим
+
+    \[
+        v = \frac{a - \gamma b}{\norm{a - \gamma b}_2}
+        \quad\text{и}\quad
+        2 v^* a v = a - \gamma b.
+    \]
+
+    Подставим:
+
+    \[
+        2 \frac{(a^* - \bar{\gamma} b^*) a}{\norm{a - \gamma b}_2}
+        \cdot \frac{a - \gamma b}{\norm{a - \gamma b}_2}
+        = a - \gamma b;
+    \]
+    \[
+        2 (a^* a - \bar{\gamma} b^* a) = \norm{a - \gamma b}_2^2
+        \quad \left( = \norm{a}_2^2 + \norm{b}_2^2 - 2 \Re(\bar{\gamma} b^* a)
+        \right)
+    \]
+    \[
+        -2 \bar{\gamma} b^* a = -2 \Re(\bar{\gamma} b^* a);
+    \]
+    \[
+        \bar{\gamma} b^* a \in \R.
+    \]
+
+    Если $b \perp a$, то подойдёт любое $\gamma: |\gamma| = 1$.
+
+    Иначе подойдёт $\gamma = \pm \frac{b^* a}{|b^* a|}$.
+\end{proof}
+
+Следствие. $\forall a \in \CC^n \; \exists v \in \CC^n:$
+
+\[
+    H(v) a = \gamma \begin{bmatrix} \norm{a}_2 \\ 0 \\ \vdots \\ 0 \end{bmatrix}
+    , |\gamma| = 1;
+\]
+\[
+    v = \frac{a - \gamma \norm{a}_2 e_1}{\norm{a - \gamma \norm{a}_2 e_1}_2}.
+\]
+
+Замечание. Т.к. $a - \gamma \norm{a}_2 e_1 = (
+a_1 - \gamma \norm{a}_2, a_2, \dots, a_n)^T$, лучше выбрать $\gamma < 0$,
+т.к. возможно $a_1 \approx \norm{a}_2$ и будет вычитание двух близких чисел.
+
+\begin{theorem}
+    Для любой $A \in \CC^{m \times n}$ существуют $Q \in \CC^{m \times m}$,
+    $R \in \CC^{m \times n}$ ($Q$ --- унитарная, $R$ --- верхнетреугольная), что
+    $A = Q R$.
+\end{theorem}
+
+\begin{proof}
+    \[
+        A = \begin{bmatrix}
+            * & * & * \\
+            * & * & * \\
+            * & * & * \\
+            * & * & * \\
+            * & * & *
+        \end{bmatrix}
+        \xrightarrow{H_1}
+        \begin{bmatrix}
+            * & * & * \\
+            0 & * & * \\
+            0 & * & * \\
+            0 & * & * \\
+            0 & * & *
+        \end{bmatrix}
+        \xrightarrow{
+            H_2 = \begin{bmatrix} 1 & . \\ . & \tilde{H}_2 \end{bmatrix}}
+        \begin{bmatrix}
+            * & * & * \\
+            0 & * & * \\
+            0 & 0 & * \\
+            0 & 0 & * \\
+            0 & 0 & *
+        \end{bmatrix}
+        \xrightarrow{H_3 = \dots}
+        \begin{bmatrix}
+            * & * & * \\
+            0 & * & * \\
+            0 & 0 & * \\
+            0 & 0 & 0 \\
+            0 & 0 & 0
+        \end{bmatrix}
+    \]
+
+    Получаем $H_3 H_2 H_1 A = R$. Но $H_i$ --- унитарная и эрмитова, так что
+    $A = (H_1 H_2 H_3) R$. $H_1 H_2 H_3$ --- унитарная, что и требовалось.
+\end{proof}
+
+Замечания:
+
+\begin{enumerate}
+    \item Доказательство даёт алгоритм построения $QR$.
+    \item Если $m \ge n$:
+        \[
+            A = [Q_1 Q_2] \begin{bmatrix} R_1 \\ 0 \end{bmatrix}
+            = Q_1 R_1 \text{ --- thin QR (будет по умолчанию)}
+        \]
+\end{enumerate}
+
+Для вычисления thin QR не надо явно считать $H_1 H_2 \dots H_n$. Можно
+
+\[
+    Q_1 = \left( H_1 \left( H_2 \dots \left( H_n
+    \begin{bmatrix} I_n \\ 0 \end{bmatrix} \right) \right) \right)
+\]
+
+Сложность алгоритма --- $2 m n^2 - \frac{2}{3} n^3$ (у Грамма-Шмидта ---
+$2 m n^2$).
+
+\subsubsection{Вращения Гивенса}
+
+$G_{i j} \in \R^{m \times m}$ --- матрица вращения. Единичная кроме подматрицы
+$(i, j)^2$, где имеет вид
+
+\[
+    J(\phi) = \begin{bmatrix}
+        \cos{\phi} & -\sin{\phi} \\
+        \sin{\phi} & \cos{\phi}
+    \end{bmatrix}.
+\]
+
+Заметим, что $J(\phi) [a_1, a_2]^T = [\alpha, 0]^T$ при правильном подборе
+$\phi(a_1, a_2)$.
+
+Тогда алгоритм на основе вращений работает так: в каждом столбце, снизу вверх
+вращаем значения.
+
+Сложность $3 m n - n^3$. Больше, чем у Хаусхолдера, но параллелизуется.
+
+\subsection{Метод наименьших квадратов}
+
+\subsubsection{Полноранговый случай}
+
+Пусть $A \in \R^{m \times n}$, $m \ge n$, $\rank(A) = n$.
+
+\[
+    \norm{A x - b}_2^2 \to \min_{x \in \R^n}.
+\]
+
+Решение: $\nabla J(x) = 2 A^T A x - 2 A^T b = 0$; $A^T A x = A^T b$. Получаем
+$x = (A^T A)^{-1} A^T b$. Как считать? Не хочется напрямую считать $A^T A$.
+
+Способ вычисления:
+
+\begin{enumerate}
+    \item Через QR.
+
+        $A = Q R$, $A^T A = R^T Q^T Q R = R^T R$.
+
+        Получаем $R^T R x = R^T Q^T b$, сокращаем на $R^T$.
+
+        $R x = Q^T b \equiv f$.
+
+        $R$ --- верхнетреугольная! Можно решать Гауссом снизу.
+
+        Сложность $O(n^2)$.
+
+        Итог: $2 m n^2 - \frac{2}{3} n^3 + O(n^2)$ flops.
+
+    \item Через compact SVD. Сложность будет $2 m n^2 + 11 n^3$ flops.
+
+        $A = U \Sigma V^T$
+
+        $A^T A = V \Sigma^2 V^T$
+
+        $V \Sigma^2 V^T x = V \Sigma U^T b$
+
+        $x = V \Sigma^{-1} U^T b$
+
+        Сложность через SVD $>$ сложность через QR.
+
+        Но SVD может быть полезна, если сингулярные числа маленькие.
+\end{enumerate}
+
+\subsubsection{$\rank{A} \le n$}
+
+\begin{theorem}
+    Пусть $A = U \Sigma V^T$ --- полное SVD от $A$. Тогда
+
+    \[
+        x_* = V \Sigma^+ U^T b, \quad \text{где } \Sigma^+ = \begin{bmatrix}
+            \Sigma_r^{-1} & 0 \\
+            0 & 0
+        \end{bmatrix}
+    \]
+
+    Решает поставленную задачу минимизации и $x_*$ имеет минимальную вторую
+    норму среди всех решений.
+\end{theorem}
+
+\begin{proof}
+    \[
+        \norm{A x - b}_2^2 = \norm{U \Sigma V^T x - b}_2^2
+        = \norm{U^T U \Sigma V^T x - U^T b}_2^2
+        = \norm{\Sigma \alpha - U^T b}_2^2
+        = \norm{\begin{bmatrix} \Sigma_r \alpha_r \\ 0 \end{bmatrix}
+            - \begin{bmatrix} U_r^T b \\ U_\perp^T b \end{bmatrix}}_2^2
+        = \norm{\Sigma_r \alpha_r - U_r^T b}_2^2 + \norm{U_\perp^T b}_2^2
+    \]
+
+    $\alpha_r = \Sigma_r^{-1} U_r^T b$, $\alpha_\perp$ --- любое.
+
+    $\norm{\alpha}_2^2 = \norm{x}_2^2$ $\Rightarrow$ $\min$ норма $x$, если
+    $\alpha_\perp = 0$;
+
+    $\Rightarrow$ $x^* = V_r \Sigma_r^{-1} U_r^T b = V \Sigma^+ U^T b$.
+\end{proof}
+
+\begin{definition}
+    $A^+ = V \Sigma^+ U^T$ --- псевдообратная матрица.
+\end{definition}
