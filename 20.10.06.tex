@@ -1,0 +1,184 @@
+\section{Быстро умножаем векторы на матрицы}
+
+\subsection{Быстрое преобразование Фурье}
+
+(((TODO: пропустил начало)))
+
+\begin{enumerate}
+    \item
+        \[
+            \omega_{2n}^{2pq} = e^{-\frac{2\pi i}{2n} 2pq} = \omega_n^{pq}
+        \]
+
+    \item
+        \[
+            w_{2n}^{2p(n+q)} = w_n^{pq} w_n^{pq}
+        \]
+
+    \item ...
+\end{enumerate}
+
+\[
+    P_{2n} F_{2n} = \begin{pmatrix}
+        ...
+    \end{pmatrix}
+\]
+
+\[
+    F_{2 n} X = P_n^{-1} \begin{pmatrix} F_n & 0 \\ 0 & F_n \end{pmatrix}
+    \begin{pmatrix} I_n & 0 \\ 0 & W_n \end{pmatrix}
+    \begin{pmatrix} I_n & I_n \\ I_n & -I_n \end{pmatrix} X
+\]
+
+--- если умножать справа налево по ассоциативности, получится быстро: $O(n)$
+на шаг рекурсии, рекурсия от вдвое меньшего $n$. Сложность $O(n \log n)$.
+
+\subsection{Циркулянты}
+
+\begin{definition}
+    Матрица называется циркулянтом, если её элементы записываются в следующем
+    виде:
+
+    \[
+        C = \begin{pmatrix}
+            c_0 & c_{n - 1} & c_{n - 2} & \dots & c_1 \\
+            c_1 & c_0 & c_{n - 1} & \dots & c_2 \\
+            c_2 & . & . & . & . \\
+            \vdots & . & . & . & . \\
+            c_{n - 1} & c_{n - 2} & . & \dots & c_0
+        \end{pmatrix}
+    \]
+\end{definition}
+
+$y = C x$ --- циклическая свёртка, т.е.
+
+\[
+    y_p = \sum_{q = 0}^{n - 1} c_{(p - q) \;\%\; n} \cdot x_q.
+\]
+
+Цель: посчитать $C x$ за $o(n^2)$.
+
+Пусть $P$ --- матрица циклического сдвига на 1 (влево? вправо?). Тогда
+
+\[
+    C = c_0 P^0 + c_1 P + с_2 P^2 + \ldots + c_{n - 1} P^{n - 1}.
+\]
+
+\begin{theorem} Пусть $C \in \CC^{n \times n}$ --- циркулянт, тогда
+    \[
+        C = F_n^{-1} \diag(F_n c) F_n.
+    \]
+\end{theorem}
+
+\begin{proof}
+    Покажем, что $P_n$ диагонализуется преобразованием Фурье. Тогда теорема
+    будет доказана.
+
+    \[
+        P_n \begin{pmatrix}
+            1 \\ \bar{\omega}_n^q \\ \bar{\omega}_n^{2 q} \\ \vdots \\
+            \bar{\omega}_n^{(n - 1) q}
+        \end{pmatrix}
+        = \begin{pmatrix}
+            \bar{\omega}_n^{(n - 1) q} \\ 1 \\ \bar{\omega}_n^q \\ \vdots
+        \end{pmatrix}
+        = \bar{\omega}_n^{-q} \begin{pmatrix}
+            \bar{\omega}_n^{nq} \\ \bar{\omega}_n^q \\ \vdots
+        \end{pmatrix}
+    \]
+
+    \[
+        P_n = F_n^* \Lambda (F_n^*)^{-1},
+        \quad \Lambda = \diag(1, \omega_n, \dots, \omega_n^{n - 1}).
+    \]
+
+    \[
+        \Lambda = \diag(F_n e_1); \Lambda^k = \diag(F_n e_k);
+    \]
+
+    \[
+        C = c_0 I + \ldots = F_n \diag(F_n C) F_n.
+    \]
+\end{proof}
+
+Из этого следует
+
+\begin{theorem} дискретная теорема свёртки:
+    \[
+        C x = F_n^{-1} ( (F_n C) \circ (F_n x)).
+    \]
+\end{theorem}
+
+\subsection{Двухуровневый циркулянт}
+
+\begin{definition}
+    \[
+        C = \begin{pmatrix}
+            C_0 & C_{n - 1} & \dots & C_1 \\
+            C_1 & C_0 & . & \vdots \\
+            \vdots & C_1 & . & \vdots \\
+            C_{n - 1} & . & . & .
+        \end{pmatrix}, C_k \in \CC^{m \times m}
+    \]
+
+    ($C_k$ --- циркулянты)
+\end{definition}
+
+\begin{theorem}
+    Пусть $F_n \otimes F_m = F$, тогда
+
+    \[
+        C x = F^{-1} \diag(F C) F.
+    \]
+\end{theorem}
+
+\begin{proof}
+    \[
+        C = I_n \otimes C_0 + P \otimes C_1 + P^2 \otimes C_2 + \ldots
+    \]
+
+    Далее пользуемся дискретной теоремой свёртки и свойствами Кронекерова
+    произведения.
+\end{proof}
+
+\subsection{Матрицы Тёплица}
+
+\begin{definition}
+    Тёплицева матрица ---
+
+    \[
+        T = { t_{i - j} }_{i, j = 1}^n, \quad t_k \in \CC.
+    \]
+\end{definition}
+
+$y = T x$ или $y_p = \sum_{q = 1}^n t_{p - q} x_q$ --- дискретная свёртка.
+
+Любую Тёплицеву матриу $n \times n$ можно вложить в циркулянт
+$(2n - 1) \times (2n - 1)$.
+
+Например, для $n = 3$:
+
+\[
+    T = \begin{pmatrix}
+        t_0 & t_{-1} & t_{-2} \\
+        t_1 & t_0 & t_{-1} \\
+        t_2 & t_1 & t_0
+    \end{pmatrix};
+\]
+
+\[
+    C = \begin{pmatrix}
+        t_0 & t_{-1} & t_{-2} & | & t_2 & t_1 \\
+        t_1 & t_0 & t_{-1} & | & t_{-2} & t_2 \\
+        t_2 & t_1 & t_0 & | & t_{-1} & t_{-2} \\
+        - & - & - & + & - & - \\
+        t_{-2} & t_2 & t_1 & | & t_0 & t_{-1} \\
+        t_{-1} & t_{-2} & t_2 & | & t_1 & t_0
+    \end{pmatrix}.
+\]
+
+Если дополнить $x$ нулями до $x^*$, получим $T x = C x^*$.
+
+Итого,
+
+\verb|Fast matvec: ifft(fft(c) * fft([x, 0].T))|
