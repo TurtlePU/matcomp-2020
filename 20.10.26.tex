@@ -1,0 +1,263 @@
+\section{Примеры решения линейных систем с плотными матрицами}
+
+\[
+    A x = b, \quad A \in \CC^{n \times n}, \textrm{det}(A) \ne 0,
+    \quad b \in \CC^n
+\]
+
+\[
+    A = Q R, \quad Q R x = b; R x = Q^* b, \quad \frac{4}{3} n^3 + O(n^2)
+\]
+
+\[
+    A = U \Sigma V^*, \quad x = V \Sigma^{-1} U^* b
+\]
+
+\subsection{LU-разложение}
+
+\begin{definition}
+    $A = LU$ --- LU-разложение матрицы $A$, где $L$ --- нижнетреугольная с
+    1 на диагонали, а $U$ --- верхнетреугольная.
+\end{definition}
+
+\[
+    L U x = b \quad\Leftrightarrow\quad \begin{cases}
+        L y = b; \\ U x = y.
+    \end{cases}
+\]
+
+Сложность --- $O(n^2)$ на решение системы, $O(n^3)$ на разложение (но
+константа меньше, чем в QR).
+
+\begin{theorem}
+    Пусть $\textrm{det}(A) \ne 0$. Тогда $A$ имеет LU-разложение, что
+    эквивалентно тому, что все ведущие подматрицы невырождены.
+\end{theorem}
+
+\begin{proof} .
+    \begin{itemize}
+        \item $\Rightarrow$ $A = LU$
+            \[
+                0 \ne \textrm{det}(A) = \textrm{det}(L U) = \textrm{det}(L)
+                \textrm{det}(U) = u_{11} \cdot \ldots \cdot u_{nn}
+            \]
+
+            Из чего следует, что $\forall k: u_{k k} \ne 0$.
+
+            \[
+                A = \begin{pmatrix} L_k & 0 \\ * & * \end{pmatrix}
+                \begin{pmatrix} U_k & * \\ 0 & * \end{pmatrix}
+                = \begin{pmatrix} L_k U_k & * \\ * & * \end{pmatrix}
+            \]
+
+            $\textrm{det}(L_k U_k) = u_{11} \cdot \ldots \cdot u_{kk} \ne 0$.
+
+        \item $\Leftarrow$ --- по индукции.
+            \[
+                A = \begin{pmatrix} a & c^\top \\ b & D \end{pmatrix}
+            \]
+
+            \[
+                \begin{pmatrix} 1 & 0 \\ -\frac{b}{a} & I \end{pmatrix}
+                \begin{pmatrix} a & c^\top \\ b & D \end{pmatrix}
+                = \begin{pmatrix} a & c^\top \\ 0 & D - \frac{b}{a} c^\top
+                \end{pmatrix}
+            \]
+
+            У $A_1$ все ведущие нормы невырождены (ДЗ).
+
+            По индукции $A_1 = L_1 U_1$.
+
+            \[
+                \begin{pmatrix} 1 & 0 \\ \frac{1}{a} b & L_1 \end{pmatrix}
+                \begin{pmatrix} a & c^\top \\ 0 & U_1 \end{pmatrix}
+                = \begin{pmatrix} a & c^\top \\ \dots \end{pmatrix}
+                = \begin{pmatrix} a & c^\top \\ b & D \end{pmatrix}
+            \]
+    \end{itemize}
+\end{proof}
+
+\begin{point}
+    LU-разложение определяется единственным образом.
+\end{point}
+
+\begin{proof}
+    \[
+        A = L_1 U_1 = L_2 U_2 \quad\Leftrightarrow\quad
+        L_2^{-1} L_1 = U_2 U_1^{-1} = I \quad\Leftrightarrow\quad
+        L_1 = L_2,\; U_1 = U_2.
+    \]
+\end{proof}
+
+\begin{point}
+    (LDL-разложение) Пусть у $A$ все ведущие подматрицы невырождены, $A = A^*$,
+    $\exists L$ --- нижняя унитреугольная и $D$ --- диагональная:
+
+    \[
+        A = L D L^*.
+    \]
+\end{point}
+
+\begin{proof}
+    \[
+        A = L U = L D D^{-1} U = A^* = U^* D^{-*} D^* L^*
+    \]
+
+    Из единственности следует $L = U^* D^{-*}$, $U^* = L D^*$, $U = D L^*$.
+\end{proof}
+
+\subsubsection{Связь LU-разложения и метода исключения Гаусса}
+
+LU:
+
+\[
+    \begin{pmatrix} 1 & 0 \\ -\frac{1}{a}b & I \end{pmatrix}
+    \begin{pmatrix} a & c^\top \\ b & D \end{pmatrix}
+    = \begin{pmatrix} a & c^\top \\ 0 & D - \frac{1}{a} b c^\top \end{pmatrix}
+\]
+
+Гаусс:
+
+\[
+    \begin{pmatrix}
+        1 & 0 & 0 \dots 0 \\
+        0 & 1 & 0 \dots 0 \\
+        0 & v & I
+    \end{pmatrix}
+    \begin{pmatrix}
+        * & * & \dots & * \\
+        0 & * & . & \vdots \\
+        0 & * & . & \vdots \\
+        \vdots & \vdots & . & \vdots \\
+        0 & * & \dots & *
+    \end{pmatrix}
+    = \begin{pmatrix}
+        * & * & \dots & * \\
+        0 & * & . & \vdots \\
+        0 & 0 & . & \vdots \\
+        \vdots & \vdots & . & \vdots \\
+        0 & 0 & *\dots & *
+    \end{pmatrix}
+\]
+
+Сложность LU-разложения --- $\frac{2}{3} n^3 + O(n^2)$.
+
+На практике лучше использовать блочное разложение:
+
+\[
+    \begin{pmatrix} A & B \\ C & D \end{pmatrix}
+    = \begin{pmatrix} I & 0 \\ C A^{-1} & I \end{pmatrix}
+    \begin{pmatrix} A & B \\ 0 & S \end{pmatrix},
+    \quad S = D - B A^{-1} C
+\]
+
+($S$ --- дополнение по Шуру блока $D$)
+
+\subsection{Выбор ведущего элемента}
+
+\begin{theorem}
+    Пусть $\exists$ LU-разложение $A$ и не возникает ???. Тогда
+
+    \[
+        |A - \tilde{L} \tilde{U}| \le 3 n \eps_{\text{machine}} (|A| + |L| |U|)
+        + O(\eps_{\text{machine}}^2)
+    \]
+\end{theorem}
+
+\begin{example}
+    \[
+        \begin{pmatrix} \eps & 1 \\ 1 & 1 \end{pmatrix}
+        = \begin{pmatrix} 1 & 0 \\ \frac{1}{\eps} & 1 \end{pmatrix}
+        \begin{pmatrix} \eps & 1 \\ 0 & 1 - \frac{1}{\eps} \end{pmatrix}
+    \]
+\end{example}
+
+\begin{itemize}
+    \item Выбор ведущего элемента (partial pivoting)
+        \[
+            P A = L U
+        \]
+
+        (TODO: матрица $P A$)
+
+        $P$ (перестановка) выбирается так, чтобы $a_k$ был максимальным по
+        модулю в 1-м столбце $A_k$. Тогда $\norm{L}_c \le 1$. Но элементы в $U$
+        ещё могут расти:
+
+        \[
+            A = \begin{pmatrix}
+                1 & 0 & 0 \dots 0 & 1 \\
+                -1 & \ddots & 0 \dots 0 & 1 \\
+                \vdots & \ddots & \ddots & \vdots \\
+                -1 & \dots & -1 & 1
+            \end{pmatrix},
+            \quad \frac{\norm{U}_c}{\norm{A}_c} = 2^{n - 1}
+        \]
+
+    \item Полный выбор (full pivoting)
+        \[
+            P A Q = L U
+        \]
+
+        Выбираем перестановку такую, чтобы $a_k$ был максимальным по модулю во
+        всей $A_k$.
+\end{itemize}
+
+\subsection{Разложение Халецкого}
+
+\begin{definition}
+    $A = L L^*$ --- разложение Халецкого, где $L$ --- нижнетреугольная матрица.
+\end{definition}
+
+\begin{theorem}
+    $A$ имеет разложение Халецкого $\Leftrightarrow$ $A = A^* > 0$.
+\end{theorem}
+
+\begin{proof} .
+    \begin{itemize}
+        \item $(\Rightarrow)$ $A = L L^* = A^*$,
+            $(x, L L^* x) = (L^* x, L^* x) > 0$.
+        \item $(\Leftarrow)$
+            $A = L D L^* = L D^{1/2} D^{1/2} L^* = (L D^{1/2}) (L D^{1/2})^*$.
+    \end{itemize}
+\end{proof}
+
+Алгоритм вычисления:
+
+\[
+    \begin{pmatrix}
+        a_{11} & a_{21} & a_{31} \\
+        a_{21} & a_{22} & a_{32} \\
+        a_{31} & a_{23} & a_{33}
+    \end{pmatrix}
+    = \begin{pmatrix}
+        l_{11} & 0 & 0 \\
+        l_{21} & l_{22} & 0 \\
+        l_{31} & l_{32} & l_{33}
+    \end{pmatrix}
+    \begin{pmatrix}
+        l_{11} & l_{21} & l_{31} \\
+        0 & l_{22} & l_{32} \\
+        0 & 0 & l_{33}
+    \end{pmatrix}
+\]
+
+Решаем матричное уравнение.
+
+Пример разобрали, в целом алгоритм следующий:
+
+\begin{verbatim}
+for k = 1, n:
+    e[k,k] = sqrt(a[k,k] - e[k,1] ^ 2 - ... - e[k,k-1] ^ 2)
+    for i = k + 1, n:
+        e[i,k] = (a[i,k] - e[i,1] e[k,1] - ... - e[i,k-1] e[k,k-1]) / e[k,k]
+\end{verbatim}
+
+\begin{theorem}
+    \[
+        |A - \tilde{L} \tilde{L}^*| \le \eps_{\text{machine}} (n + 1)
+        \begin{pmatrix} \sqrt{a_{11}} \\ \vdots \\ \sqrt{a_{nn}} \end{pmatrix}
+        \begin{pmatrix} \sqrt{a_{11}} & \dots & \sqrt{a_{nn}} \end{pmatrix}
+        + O(\eps_{\text{machine}}^2)
+    \]
+\end{theorem}
