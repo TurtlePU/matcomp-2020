@@ -1,0 +1,132 @@
+\section{Прямые методы решения линейных систем с большими разреженными
+матрицами}
+
+\subsection{Формула Шермана-Моррисона}
+
+\[
+    A x = b, \qquad A \in \R^{n \times n}, \qquad b \in \R^n.
+\]
+
+Пусть $b \to \tilde{b}$. Тогда решение пересчитывается за $O(n^2)$, ведь
+LU-разложение уже есть.
+
+Что делать, если изменилась $A$? На случай, если она изменилась каким-то
+управляемым способом, и существует формула Шермана-Моррисона.
+
+\begin{point}
+    Пусть $\det(A) \ne 0$ и $u, v \in \R^n$. Тогда
+
+    \begin{enumerate}
+        \item $A + u v^\top$ обратима $\Leftrightarrow$
+            $1 + v^\top A^{-1} u \ne 0$
+        \item $(A + u v^\top)^{-1} = A^{-1}
+            - \dfrac{A^{-1} u v^\top A^{-1}}{1 + v^\top A^{-1} u}$
+    \end{enumerate}
+\end{point}
+
+\begin{lemma}
+    \[
+        \det(I + a b^\top) = 1 + b^\top a, \qquad a, b \in \R^n
+    \]
+\end{lemma}
+
+\begin{proof}
+    \[
+        (I + a b^\top) w = w, \quad w \perp b,
+        \quad \lambda_1 = \dots = \lambda_{n - 1} = 1.
+    \]
+    \[
+        (I + a b^\top) a = a (1 + b^\top a), \quad \lambda_n = 1 + b^\top a.
+    \]
+\end{proof}
+
+\begin{proof} (Утверждение 1)
+    \begin{enumerate}
+        \item \[ \det(A + u v^\top) = \det(A) (1 + v^\top A^{-1} u) \]
+        \item Проверим, перемножив $A + u v^\top$ и предполагаемое обратное:
+            \begin{multline*}
+                (A + u v^\top) \left( A^{-1}
+                - \frac{A^{-1} u v^\top A^{-1}}{1 + v^\top A^{-1} u} \right)
+                = I - \frac{u v^\top A^{-1}}{1 + \gamma} + u v^\top A^{-1}
+                - \frac{u \gamma v^\top A^{-1}}{1 + \gamma}
+                =\\= I - \left( \frac{1}{1 + \gamma} - 1
+                    + \frac{\gamma}{1 + \gamma} \right) u v^\top A^{-1}
+                = I.
+            \end{multline*}
+    \end{enumerate}
+\end{proof}
+
+Подставим формулу из утверждения 1 в решение уравнения
+$x = (A + uv^\top)^{-1} b$, чтобы на практике не обращать матрицу:
+
+\[
+    x = A^{-1} b - \frac{(A^{-1} u) v^\top (A^{-1} b)}{1 + v^\top (A^{-1} u)}
+    = x_1 - \frac{x_2 (v^\top x_1)}{1 + v^\top x_2}.
+\]
+
+Замечание: Есть также формула для поправки ранга $r \ge 1$ (формула
+Шермана-Вудбери-Моррисона).
+
+\subsection{Форматы представления разреженных матриц}
+
+\subsubsection{COO формат}
+
+3 массива: значения \verb|val|, индексы столбцов \verb|col|, индексы строк
+\verb|row|.
+
+Удобно добавлять элементы, но неэффективен для операций, например, matvec
+($y = A x$)
+
+\begin{verbatim}
+for i in range(nnz(A)):
+    y[row[i]] += val[i] * x[col[i]]
+\end{verbatim}
+
+\subsubsection{lil (list of lists)}
+
+\verb|col| нет, есть только \verb|row|, который теперь список списков, и в нём
+для каждой строки хранятся индексы ненулевых элементов.
+
+\verb|val| тоже список списков, форма совпадает с формой \verb|row|.
+
+\subsubsection{CSR (compressed sparse row)}
+
+\verb|col| и \verb|val| те же, что в COO, но в \verb|row[i]| теперь находится
+самый первый индекс элемента из $i$-й строки в массивах \verb|col|, \verb|val|.
+
+Matvec:
+
+\begin{verbatim}
+for i in range(n):
+    p, q = row[i], row[i + 1]
+    y[i] = dot(val[p : q], x[col[p : q]])
+\end{verbatim}
+
+\subsection{Заполнение в L и U}
+
+Матрице $A \in \R^{n \times n}$ можно поставить в соответствие ориентированный
+граф: $a_{ij} \ne 0$ задаёт наличие ребра из $i$ в $j$.
+
+Для симметричных матриц граф неориентированный.
+
+Модель выше помогает заметить, что правильное сопряжение перестановкой может
+сделать $L$ и $U$ в LU-разложении разреженными (при условии разреженности
+исходной матрицы).
+
+Для ленточных матриц это вообще неверно.
+
+\subsection{Алгоритм поиска P}
+
+\subsubsection{Алгоритм Катхилла-Макки}
+
+Нужно для $G = (V, E)$ найти такую перестановку номеров
+вершин $\sigma$, что метрика $b$ минимальна:
+
+\[
+    b = \max_{(x, y) \in E} |\sigma(x) - \sigma(y)|.
+\]
+
+Идея состоит в том, чтобы выбрать какую-нибудь вершину первой, а дальше
+нумеровать вершины в порядке обхода bfs.
+
+\subsubsection{Minimal degree ordering}
