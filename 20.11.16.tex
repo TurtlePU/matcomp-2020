@@ -1,0 +1,182 @@
+\section{Итерационные методы решения линейных уравнений (?)}
+
+\subsection{Метод простой итерации}
+
+\[
+    x_{k + 1} = x_k + P (b - A x_k) \equiv G x_k + C
+\]
+
+\begin{theorem}
+    Пусть $\norm{\cdot}$ --- матричная и $\norm{G} < 1$, тогда итерационная
+    формула выше сходится к $x_*: A x_* = b$ при $k \to \infty$ геометрически.
+
+    \[
+        \norm{x_{k + 1} - x_*} = \norm{G (x_k - x_*)}
+        \le \norm{G} \norm{x_k - x_*} \le \dots
+        \le \norm{G}^{k + 1} \cdot \norm{x_0 - x_*}.
+    \]
+\end{theorem}
+
+Случай 1: $P = D^{-1}, \; D = \diag(A)$ --- метод Якоби.
+
+\begin{theorem}
+    Пусть $A$ обладает свойством диагонального преобладания, т.е.
+
+    \[
+        |a_{ii}| > \sum_{j \ne i} |a_{ij}|.
+    \]
+
+    Тогда метод Якоби сходится.
+\end{theorem}
+
+\begin{proof}
+    \[
+        G = I - P A = I - D^{-1} A = D^{-1} (D - A)
+    \]
+
+    \[
+        \norm{D^{-1}(D - A)}_\infty
+        = \max_i \sum_{j \ne i} \frac{|a_{ij}|}{|a_{ii}|} < 1
+    \]
+\end{proof}
+
+Случай 2: $P = (L + D)^{-1}$ --- метод Гаусса-Зейделя. Сходимость для
+$A = A^\top > 0$ будет доказана на семинаре.
+
+Случай 3: $P = \tau I$, $\tau > 0$ --- итерация Ричардсона.
+
+\begin{theorem}
+    Пусть $A = A^\top > 0$. Тогда итерация Ричардсона сходится при
+    $0 < \tau < \frac{2}{\lambda_{max}(A)}$. Более того, если
+    \[
+        \tau = \tau_{opt} = \frac{2}{\lambda_{min}(A) + \lambda_{max}(A)},
+    \]
+
+    тогда
+
+    \[
+        \norm{x_{k + 1} - x_*}_2 \le \frac{\cond_2(A) - 1}{\cond_2(A) + 1}
+        \cdot \norm{x_k - x_*}_2
+    \]
+\end{theorem}
+
+\begin{proof}
+    \[
+        \norm{e_{k + 1}}_2 \le \norm{G}_2 \norm{e_k}_2;
+    \]
+    \begin{enumerate}
+        \item
+            \[
+                \norm{G}_2 = \norm{I - \tau A}_2
+                = \max_i |\lambda_i (I - \tau A)|
+                = \max_i |1 - \tau \lambda_i (A)| < 1.
+            \]
+
+            Из того, что $1 - \tau \lambda_{min}(A) < 1$, следует, что
+            $\tau \lambda_{min} > 0$. В силу положительной определённости
+            матрицы получаем $\tau > 0$.
+
+            С другой стороны,
+
+            \[
+                1 - \tau \lambda_{max}(A) > -1;
+            \]
+            \[
+                2 > \tau \lambda_{max}(A);
+            \]
+            \[
+                \tau < \frac{2}{\lambda_{max}(A)}.
+            \]
+        \item
+            \begin{multline*}
+                \norm{I - \tau A}_2 = \max \{
+                    |1 - \tau \lambda_{min}(A)|,
+                    |1 - \tau \lambda_{max}(A)|
+                \} =\\= \max \left\{
+                    \left|\frac{\lambda_{max} - \lambda_{min}}
+                          {\lambda_{max} + \lambda_{min}}\right|,
+                    \left|\frac{\lambda_{min} - \lambda_{max}}
+                          {\lambda_{min} + \lambda_{max}}\right|
+                \right\}
+                = \frac{\lambda_{max} - \lambda_{min}}
+                       {\lambda_{max} + \lambda_{min}}
+                = \frac{\cond(A)_2 - 1}{\cond(A)_2 + 1}.
+            \end{multline*}
+    \end{enumerate}
+\end{proof}
+
+\subsection{Метод наискорейшего спуска}
+
+Делаем градиентный спуск по функционалу $J(x)$.
+
+\begin{enumerate}
+    \item $J(x) = \norm{x - x_*}_2^2$ --- вычисление равносильно решению
+        уравнения.
+    \item $J(x) = \norm{A x - b}_2^2$ --- для общего случая, но для
+        $A = A^\top > 0$ можно лучше.
+    \item $J(x) = \norm{x - x_*}_A^2$ --- для $A = A^\top > 0$. На первый взгляд
+        зависит от решения, но
+        \[
+            \norm{x - x_*}_A^2 = (x - x_*)^\top A (x - x_*) =
+            (x - x^*)^\top (A x - b) = x^\top A x - 2 x^\top b + \textrm{const}
+        \]
+
+        $J(x) = \frac{1}{2} x^\top A x - x^\top b$ --- функционал энергии.
+
+        $\nabla J(x) = A x - b$
+
+        $x_{k+1} = x_k - \tau_k \nabla J = x_k - \tau_k (A x_k - b)$.
+
+        \begin{multline*}
+            J(x_k + \tau r_k) = \frac{1}{2} (x_k + \tau r_k)^\top A
+            (x_k + \tau r_j) - (x_k + \tau r_k)^\top b =\\=
+            \tau r_k^\top A x_k + \frac{1}{2} \tau^2 r_k^\top A r_k
+            - \tau r_k^\top b + \textrm{const}(\tau) \to \min_\tau
+        \end{multline*}
+        \[
+            \tau_k r_k^\top A r_k - r_k^\top r_k = 0;
+        \]
+        \[
+            \tau_k = \frac{r_k^\top r_k}{r_k^\top A r_k}.
+        \]
+\end{enumerate}
+
+\begin{theorem}
+    Пусть $A = A^\top > 0$. Тогда метод наискорейшего спуска сходится и
+    \[
+        \norm{x_{k + 1} - x_*}_A \le \frac{\cond_2(A) - 1}{\cond_2(A) + 1}
+        \norm{x_k - x_*}_A.
+    \]
+\end{theorem}
+
+\begin{proof}
+    \begin{enumerate}
+        \item
+            \[
+                \tau_k = \argmin_\tau \sqrt{x_k + \tau r_k}
+                = \argmin_\tau \norm{x_k + \tau r_k - x_*}_A
+            \]
+        \item
+            \begin{multline*}
+                \norm{x_{k + 1} - x_*}_A
+                = \min_\tau \norm{x_k + \tau r_k - x_*}_A
+                = \min_\tau \norm{(I - \tau A) e_k}_A
+                \le\\\le \min_\tau \norm{(I - \tau A) \sqrt{A} e_k}_2
+                \le \min_\tau \norm{I - \tau A}_2 \cdot \norm{e_k}_A.
+            \end{multline*}
+    \end{enumerate}
+\end{proof}
+
+\subsection{Итерационный метод Чебышева}
+
+\[
+    x_{k + 1} = x_k + \tau_k (b - A x_k);
+\]
+\[
+    e_{k + 1} = (I - \tau_k A) e_k = (I - \tau_k A) \dots (I - \tau_0 A) e_0
+    = \mathbb{P}_{k + 1}(A) \cdot e_0
+\]
+\[
+    \norm{e_{k + 1}}_2 \le \norm{p_{k + 1}(A)}_2 \norm{e_0}_2,
+    \quad p_{k + 1}(0) = 1.
+\]
