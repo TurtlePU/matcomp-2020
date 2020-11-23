@@ -1,0 +1,202 @@
+\section{???}
+
+\subsection{Оптимизация на подпространствах Крылова}
+
+В прошлый раз мы рассмотрели несколько функционалов $J$, для которых верно
+
+\[
+    x_* = \argmin_x J(x) \quad\Leftrightarrow A x_* = b.
+\]
+
+Расширим концепцию и рассмотрим последовательность
+$L_1 \subset L_2 \subset \dots \subset L_n$, где $\dim(L_k) = k$.
+
+\[
+    x_k = \argmin_{x \in x_0 + L_k} J(x)
+\]
+
+Как выбрать $L_k$?
+
+\[
+    L_k = \mathcal{K}_k(A, f) = \{ f, Af, A^2 f, \dots, A^{k - 1} f \},
+\]
+
+($f$ --- либо $b$, либо $b - A x_0$)
+
+Варианты для $J$:
+
+\begin{enumerate}
+    \item $\norm{A x - b}_2$ --- методы minres, qmres
+    \item $\norm{x - x_*}_A$, т.е. то же самое, что
+        $J(x) = \frac{1}{2} x^\top A x - b^\top x$ --- метод CG
+    \item QMR, bicgstab
+\end{enumerate}
+
+При больших $k$ $A^* f$ становятся почти линейно зависимыми, так что нужно будет
+их ортогонализовывать. Если делать это с помощью Грамма-Шмидта, получающийся
+базис будет называться <<векторы Арнольда>>.
+
+\begin{point} (Соотношение Арнольда)
+    \[
+        A Q_k = Q_{k + 1} \hat{H}_k, \quad \hat{H}_k = \begin{bmatrix}
+            & H_k & \\
+            0 & \dots & 0 & h_{k + 1, k} q_{k + 1}
+        \end{bmatrix},
+    \]
+    где $H_k$ --- верхнехессенбергова матрица.
+\end{point}
+
+\begin{proof}
+    \[
+        \Im(A Q_{k - 1}) \subset Q_k,
+    \]
+    \[
+        A \mathcal{K}_k = A [f, \dots, A^{k - 1} f]
+        = [A f, \dots, A^k f] \subset \mathcal{K}_{k + 1}.
+    \]
+    \[
+        A q_k \in \Im(Q_{k + 1}).
+    \]
+    \[
+        q_{k + 1} \cdot const = (I - Q_k Q_k^\top) A q_k
+        = A q_k - (q_1^\top A q_k) q_1 - \dots - (q_k^\top A q_k) q_k.
+    \]
+\end{proof}
+
+Следствия: $Q_k^\top A Q_k$ --- верхнехессенбергова, $Q_k^\top A Q_k$ ---
+трёхдиагональная (???).
+
+\subsection{Метод сопряжённых градиентов}
+
+Обозначения:
+
+\[
+    (x, y)_A = x^\top A y = (x, A y);
+\]
+\[
+    x \perp_A y \quad\Leftrightarrow\quad (x, y)_A = 0.
+\]
+
+\begin{point}
+    \[
+        x_k = \argmin_{x \in x_0 + \mathcal{K}_k(A, r_0)} \norm{x_* - x}_A
+        \quad\Leftrightarrow\quad x_* - x_k \perp_A \mathcal{K}_k
+        \quad\Leftrightarrow\quad r_k \perp \mathcal{K}_k
+    \]
+\end{point}
+
+\begin{proof}
+    \[
+        \norm{x_* - x}_A = \norm{x_* - x_0 - y}_A \to \min_{y \in \mathcal{K}_k}
+    \]
+
+    $P^A$ --- $A$-ортогональный проектор на $\mathcal{K}_k$: $(P^A)^2 = P^A$;
+    $(P^A x, y)_A = (x, P^A y)_A$.
+
+    \[
+        x_* - x_0 = P^A (x_* - x_0) + (I - P^A) (x_* - x_0)
+    \]
+    \[
+        \norm{x_* - x_0 - y}_A^2 = \norm{P^A (x_* - x_0) - y
+            + (I - P^A)(X_* - x_0)}_A^2
+        = \norm{P^A (x_* - x_0) - y}_A^2 + const \to \min_y
+    \]
+    \[
+        y = P^A (x_* - x_0).
+    \]
+\end{proof}
+
+Из утверждения 12.1 следует, что $Q_k^\top A Q_k$ --- трёхдиагональная. Если $A$
+ещё и положительно определённая, то мы можем применить к $Q_k^\top A Q_k$
+разложение Холецкого.
+
+\[
+    Q_k^\top A Q_k = R_k^\top R_k
+\]
+\[
+    (Q_k R_k^{-1} D_k)^\top A Q_k R_k^{-1} D_k = D_k^2
+\]
+\[
+    P_k^\top A P_k = D_k^2, \quad p_i \perp_A p_j.
+\]
+\[
+    x_k = x_0 + P_k a_k, \quad a_k = [\alpha_1, \dots, \alpha_k]^\top
+\]
+\[
+    r_k = r_0 - A P_k a_k, \quad r_k \perp \Im(P_k)
+\]
+\[
+    0 = P_k^\top r_k = P_k^\top r_0 - P_k^\top A P_k a_k
+\]
+\[
+    D_k^2 a_k = P_k^\top r_0
+\]
+\[
+    x_k = x_0 + P_k a_k = x_0 + P_{k - 1} a_{k - 1} + \alpha_k P_k
+\]
+\[
+    x_k = x_{k - 1} + \alpha_k p_k
+\]
+\[
+    r_k = r_{k - 1} - \alpha_k A p_k
+\]
+
+Как искать $\alpha_k$ и $p_k$?
+
+\[
+    r_k \perp p_k, p_k^\top r_k = p_k^\top r_{k - 1} - \alpha_k p_k^\top A p_k
+\]
+\[
+    \alpha_k = \frac{p_k^\top r_{k - 1}}{p_k^\top A p_k}
+\]
+\[
+    r_k = r_0 - A p_k a_k \in \mathcal{K}_{k + 1}
+\]
+\[
+    r_k \perp \Im(P_k) = \mathcal{K}_k
+\]
+\[
+    r_k || q_{k + 1}
+\]
+\[
+    q_{k + 1} = \frac{r_k}{\norm{r_k}_2}
+\]
+\[
+    P_k = Q_k R_k^{-1} D_k
+\]
+\[
+    Q_k = P_k D_k^{-1} R_k
+\]
+\[
+    q_k = p_k \frac{\gamma_k}{d_k} + p_{k - 1} \frac{\delta_{k - 1}}{d_{k - 1}}
+\]
+\[
+    q_{k + 1} = p_{k + 1} \frac{\gamma_{k + 1}}{d_{k + 1}}
+        + p_k \frac{\delta_k}{d_k}
+\]
+\[
+    p_{k + 1} = \frac{d_{k + 1}}{\gamma_{k + 1}} q_{k + 1}
+        - \frac{d_{k + 1}}{\gamma_{k + 1}} \frac{\delta_k}{d_k} p_k
+    = r_k + \beta_k p_k
+\]
+\[
+    p_{k + 1} \perp_A p_k \quad\Rightarrow\quad \beta_k = \dots
+\]
+
+Итог:
+
+\[
+    \alpha_k = \frac{(r_{k - 1}, p_k)}{(A p_k, p_k)}
+\]
+\[
+    x_k = x_{k - 1} + \alpha_k p_k
+\]
+\[
+    r_k = r_{k - 1} - \alpha_k A p_k
+\]
+\[
+    \beta_k = - \frac{(r_k, A p_k)}{(p_k, A p_k)}
+\]
+\[
+    p_{k + 1} = r_k + \beta_k p_k
+\]
