@@ -1,0 +1,96 @@
+\subsubsection{Сходимость CG}
+
+\[
+    x_k = x_0 + y, \quad y \in \mathcal{K}_k(A, r_0)
+\]
+\[
+    x_k = x_0 + \mathbb{P}_{k - 1}(A) r_0
+\]
+\[
+    r_k = r_0 - A y = r_0 - A p_{k - 1}(A) r_0 =
+    (I - A p_{k - 1}(A)) r_0 =: q_k(A) r_0
+\]
+\[
+    \norm{e_k}_A^2 = (e_k, A e_k) = (-A^{-1} r_k, -r_k)
+    = (A^{-1} q_k(A) r_0, q_k(A) r_0)
+\]
+
+Разложим $r_0$ по собственному базису $A$ ($A$ --- унитарно диагонализуема).
+Получим
+
+\[
+    \norm{e_k}_A^2
+    = \left( \sum c_i A^{-1} q_k(A) v_i, \sum c_i q_k(A) v_i \right)
+    = \left( \sum \frac{c_i q_k(\lambda_i)}{\lambda_i} v_i,
+        \sum c_i q_k(\lambda_i) v_i \right)
+\]
+
+Вспомним про ортогональность $v_i$.
+
+\[
+    \norm{e_k}_A^2 = \sum \frac{c_i^2 q_k^2(\lambda_i)}{\lambda_i}
+    \le \left( \max_i |q_k(\lambda_i)| \right)^2 \sum \frac{c_i^2}{\lambda_i}
+    = \left( \dots \right)^2 (A^{-1} r_0, r_0)
+\]
+
+Повторяем рассуждения из анализа ошибок метода Чебышева, получаем
+
+\[
+    \norm{e_k}_A \le 2 \left( \frac{\sqrt{\sfrac{\lambda_n}{\lambda_1}} - 1}
+        {\sqrt{\sfrac{\lambda_n}{\lambda_1}} + 1} \right)^k \norm{e_0}_A
+\]
+
+Однако нам нужно минимизировать значения $q$ только в точках спектра; для этого
+возьмём многочлен
+
+\[
+    q(\lambda) = \frac{f(\lambda)}{f(0)} \left(
+        1 - \frac{\lambda}{\lambda_n} \right), \quad
+    f(\lambda) = T_k \left( \frac{\lambda_1 + \lambda_{n - 1} - 2 \lambda}{
+        \lambda_1 + \lambda_{n - 1}} \right)
+\]
+
+\subsection{Предобуславливание}
+
+\[
+    \begin{cases}
+        P_L A P_R y = P_L b \\
+        x = P_R y
+    \end{cases}
+\]
+
+Варианты:
+
+\begin{enumerate}
+    \item Якоби, Гаусс-Зейдель
+    \item Блочный Якоби
+    \item Неполное LU-разложение --- например, по шаблону разреженности, и/или
+        пренебрегать элементами $\le \textrm{droptol}$.
+\end{enumerate}
+
+\subsection{Метод обобщённых минимальных невязок (gmres)}
+
+\[
+    A = \R^{n \times n}, \quad \det(A) \ne 0
+\]
+\[
+    x_k = \argmin_{x \in x_0 + \mathcal{K}_k(A, r_0)} \norm{A x - b}_2
+\]
+
+Вспомним соотношение Арнольди, с его помощью выведем метод.
+
+\begin{multline*}
+    \norm{A x - b}_2 = \norm{A Q_k c - r_0}_2
+    = \norm{Q_{k + 1} \hat{H}_k c - r_0}_2
+    = \norm{Q_{k + 1} \hat{H}_k c - Q_{k + 1} e_1 \norm{r_0}_2}_2
+    =\\= \norm{Q_{k + 1} (\hat{H}_k c - \norm{r_0}_2 e_1)}_2
+    = \norm{\hat{H}_k c - \norm{r_0}_2 e_1}_2
+\end{multline*}
+
+Разложим $\hat{H}_k = Q R$ с помощью вращений Гивенса. Раз $\hat{H}_k$ ---
+верхнехессенбергова матрица, то сложность будет $O(k^2)$, а не $O(k^3)$.
+
+Но нам необходимо хранить $O(n k)$ векторов. Для этого просто перезапускаем
+каждые restart итераций, а затем начинаем с $x_{\textrm{restart}}$.
+
+Если $A = A^\top$, то получаются <<короткие>> формулы, называется minres.
