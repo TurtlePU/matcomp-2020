@@ -1,0 +1,171 @@
+\section{Методы решения частичной задачи на собственные значения}
+
+\[
+    A v^{(i)} = \lambda^{(i)} v^{(i)}, \quad A \in \R^{n \times n}, \quad
+    \lambda^{(i)} \in \CC
+\]
+
+Отношение Релея:
+
+\[
+    R(x) = \frac{(A x, x)}{(x, x)}
+\]
+
+\[
+    \Rightarrow\quad R(v^{(i)})
+    = \frac{(A v^{(i)}, v^{(i)})}{(v^{(i)}, v^{(i)})}
+    = \lambda^{(i)}
+\]
+
+\[
+    \nabla R(x) = \frac{2}{(x, x)} (A - R(x)) x \quad\Rightarrow\quad
+    \min \lambda^{(i)} = \min_{x \ne 0} R(x); \;
+    \max \lambda^{(i)} = \max_{x \ne 0} R(x).
+\]
+
+\subsection{Степенной метод (power iteration)}
+
+\[
+    x_{k + 1} = \frac{A x_k}{\norm{A x_k}_2}
+\]
+
+\subsubsection{Сходимость}
+
+\[
+    x_{k + 1} = \frac{A x_k}{\norm{A x_k}_2}
+    = \frac{A \frac{A x_{k - 1}}{\norm{A x_{k - 1}}}}
+     {\norm{A \frac{A x_{k - 1}}{\norm{A x_{k - 1}}}}}
+    = \frac{A^2 x_{k - 1}}{\norm{A^2 x_{k - 1}}} = \dots
+    = \frac{A^k x_0}{\norm{A^k x_0}}
+\]
+
+Пусть $A$ диагонализуема, и максимальное по модулю собственное значение ---
+простое число. Тогда
+
+\[
+    x_0 = \sum_{i = 1}^n \alpha_i v^{(i)};
+\]
+
+\[
+    x_k = \frac{\sum \alpha_i (\lambda^{(i)})^k v^{(i)}}{\norm{\dots}}
+    = \left(\frac{\lambda^{(1)}}{|\lambda^{(1)}|}\right)^k
+    \frac{v^{(1)} + \sum \frac{\alpha_i}{\alpha_1} \left(\frac{\lambda^{(i)}}
+        {\lambda^{(1)}}\right)^k v^{(i)}}{\norm{\dots}}
+    = e^{i \phi k} \left( v^{(1)} + \mathcal{O} \left( \left| \lambda^{(2)}
+            / \lambda^{(1)} \right|^k \right) \right)
+\]
+
+(степень $2k$, если $A = A^\top$)
+
+Замечание. Анализ показывает, почему базисные вектора $\mathcal{K}_k(A, b)$
+становятся линейно зависимыми.
+
+\subsubsection{Блочная версия}
+
+\[
+    X_0 \in \R^{n \times p}, \quad p \ll n; \qquad
+    Y_k = A X_k; \qquad
+    Y_k = X_{k + 1} R_{k + 1}
+\]
+
+(В последнем выражении выписано QR-разложение)
+
+$L_k = \Im (X_k)$ сходится к инвариантному подпространству $A$. Ошибка
+порядка $\mathcal{O}(|\lambda^{(p + 1)} / \lambda^{(p)}|^k)$.
+
+\subsection{Обратная итерация}
+
+\[
+    x_{k + 1} = \frac{A^{-1} x_k}{\norm{A^{-1} x_k}_2}
+\]
+
+Заметим, что $A^{-1} v^{(i)} = \frac{1}{\lambda^{(i)}} v^{(i)}$. Получаем, что
+итерация сходится к собственному вектору наименьшего собственного значения.
+
+\subsubsection{Итерация со сдвигом}
+
+\[
+    y_{k + 1} = (A - \sigma I)^{-1} x_k.
+\]
+
+Ошибка --- $\mathcal{O} \left( \left| \frac{\lambda^{(1)} - \sigma}
+    {\lambda^{(2)} - \sigma} \right|^k \right)$.
+
+\subsubsection{Итерация Релея}
+
+\[
+    \sigma = \sigma_k = R(x_k)
+\]
+
+Оказывается, что итерация Релея обладает суперсходимостью:
+$|e_{k + 1}| = \mathcal{O}(|e_k|^\gamma)$. При $A = A^\top$ гамма равна трём,
+иначе двум.
+
+\subsection{Методы Ланцоша и Арнольди}
+
+Вычисляем $A_k x_0$. Почему бы не попытаться найти приближение в пространстве
+Крылова $\mathcal{K}_k(A, x_0)$?
+
+\textbf{Алгоритм} (метод Релея-Ритца)
+
+Пусть $Q_k \in \R^{n \times k}$ --- ортогональный базис в $V_k: \dim(V_k) = k$.
+Как найти собственные векторы и собственные значения наилучшим образом?
+
+$A_k = Q_k^\top A Q_k$ --- проекционное сужение $A$.
+
+$A_k = S \Lambda S^{-1}$ --- собственное разложение.
+
+$\Lambda = \diag(\theta_1, \dots, \theta_k)$ --- числа Ритца.
+
+$Z_k = Q_k S$ --- векторы Ритца.
+
+\begin{theorem}
+    Пусть $Q_k \in \R^{n \times k}: Q_k^\top Q_k = I_k$. Тогда
+
+    \[
+        A_k = Q_k^\top A Q_k = \argmin_{R \in \R^{k \times k}}
+            \norm{A Q_k - Q_k R}_2
+    \]
+\end{theorem}
+
+\begin{proof}
+    \[
+        \norm{A Q_k - Q_k R}_2^2 = \lambda_{\max} \Big((A Q_k - Q_k R)^\top
+            (A Q_k - Q_k R)\Big)
+    \]
+
+    В свою очередь,
+
+    \begin{multline*}
+        (A Q_k - Q_k R)^\top (A Q_k - Q_k R)
+        = (A Q_k - Q_k A_k)^\top (A Q_k - Q_k A_k)
+        -\\- (A Q_k - Q_k A_k)^\top Q_k Z
+        - (Q_k Z)^\top (A Q_k - Q_k A_k) + (Q_k Z)^\top (Q_k Z) =\\=
+        (A Q_k - Q_k A_k)^\top (A Q_k - Q_k A_k) + Z^\top Z
+    \end{multline*}
+
+    Минимум максимального $\lambda$ достигается при $Z = 0$.
+\end{proof}
+
+\textbf{Следствие} Пусть $A = A^\top$ и $A_k = S \Lambda S^\top$. Тогда
+
+\[
+    \min_{P_k, D} \norm{A P_k - P_k D}_2
+\]
+
+достигается на $D = \Lambda$, $P_k = Q_k S$. Условия на $P_k$, $D$:
+$P_k^\top P_k = I$; $\Im(P_k) = \Im(Q_k)$; $D$ --- диагональная.
+
+\subsection{Вектор Фидлера и спектральная бисекция графов}
+
+Дан граф из $n$ вершин. Цель --- ввести $x_k = \{ -1, 1\}$ такие, что
+
+\[
+    J(x) = \sum_i \sum_{j \in N(i)} (x_i - x_j)^2 = x^\top L x \to \min,
+\]
+
+При следующих условиях:
+
+\[
+    \sum x_i = 0; \quad \norm{x}_2^2 = n.
+\]
