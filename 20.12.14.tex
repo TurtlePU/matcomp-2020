@@ -1,0 +1,94 @@
+\section{Методы решения полной задачи на собственные значения}
+
+\subsection{QR-алгоритм}
+
+Не путать с QR-разложением!
+
+\[
+    A \in \R^{n \times n}; \quad A v^{(i)} = \lambda^{(i)} v^{(i)}.
+\]
+
+\subsubsection{vanilla}
+
+\begin{verbatim}
+input A
+for k = 1, 2, ...
+    Q, R = qr(A)
+    A = R @ Q
+\end{verbatim}
+
+$A$ сходится к верхне-блочно-трегольной матрице.
+
+Свойства:
+
+\begin{itemize}
+    \item
+        \[
+            A_{k + 1} = R_k Q_k = Q_k^\top A Q_k = \dots =
+            (Q_1 \dots Q_k)^\top A (Q_1 \dots Q_k)
+        \]
+    \item
+        \[
+            A^k = (Q_1 R_1)^k = Q_1 R_1 \dots Q_1 R_1
+            = Q_1 (R_1 Q_1)^{k - 1} R_1 = Q_1 A_2^{k - 1} R_1
+            = (Q_1 \dots Q_k) (R_k \dots R_1)
+        \]
+\end{itemize}
+
+Теперь поймём, что QR-алгоритм --- хорошо замаскированный блочный степенной
+метод, т.е.
+
+\begin{verbatim}
+for k = 1, 2, ...
+    X, _ = qr(A @ X)
+\end{verbatim}
+
+В блочном степенном методе $R_{k + 1} X_k^\top = X_{k + 1}^\top A$. Тогда
+
+\begin{multline*}
+    A^k = A A^{k - 1} = A X_{k - 1} X_{k - 1}^\top A^{k - 1}
+    = X_k R_k X_{k - 1}^\top A^{k - 1}
+    = X_k R_k R_{k - 1} X_{k - 2} A^{k - 2} =\\= \ldots
+    = X_k (R_k \dots R_1) X_0 A^0 = X_k (R_k \dots R_1) X_0.
+\end{multline*}
+
+Таким образом, QR-алгоритм --- блочный степенной метод при $X_0 = I$.
+
+\begin{theorem}
+    Пусть
+
+    \begin{enumerate}
+        \item $\exists S: A = S \Lambda S^{-1}$, $\det(S[:p,:p]) \ne 0$:
+            \[
+                \Lambda
+                = \begin{pmatrix} \Lambda_p & 0 \\ 0 & \Lambda_q \end{pmatrix}
+            \]
+        \item
+            \[
+                |\lambda_1| \ge \dots \ge |\lambda_p| > |\lambda_{p + 1}| \ge
+                \dots \ge |\lambda_{p + q}| > 0
+            \]
+    \end{enumerate}
+
+    Тогда в
+
+    \[
+        A_k = \begin{bmatrix}
+            A_{11}^{(k)} & A_{12}^{(k)} \\
+            A_{21}^{(k)} & A_{22}^{(k)}
+        \end{bmatrix}
+    \]
+
+    $\forall \eps > 0$:
+
+    \[
+        \norm{A_{21}^{(k)}}_2 \le c(\eps) \left|
+            \frac{\lambda_{p + 1}}{\lambda_p} + \eps \right|^k
+    \]
+
+    Если $\Lambda$ --- диагональная, то $\eps = 0$.
+\end{theorem}
+
+\begin{proof}
+    oof, надо было поспать подольше.
+\end{proof}
